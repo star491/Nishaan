@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>NISHAAN.AI | Glyph Vision</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#09060d;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Inter",Arial,sans-serif}
+#holoSources{position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none}
+#holoSources video{width:1px;height:1px}
+#camera{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;background:#09060d;z-index:0}
+#world{position:fixed;inset:0;z-index:1;overflow:hidden;pointer-events:none}
+.top{position:fixed;z-index:20;top:max(18px,env(safe-area-inset-top));left:20px;right:20px;display:flex;justify-content:space-between;text-shadow:0 2px 12px #000;pointer-events:none}
+.brand{font-size:12px;font-weight:800;letter-spacing:.18em}.status{font-size:10px;letter-spacing:.1em;opacity:.75}
+#intro{position:fixed;z-index:30;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,rgba(49,16,73,.38),rgba(5,3,8,.76))}
+.introBox{width:min(88vw,430px);text-align:center;padding:28px 20px;border:1px solid rgba(255,255,255,.15);border-radius:24px;background:rgba(10,7,15,.58);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.kicker{font-size:10px;letter-spacing:.22em;opacity:.55;margin-bottom:12px}h1{font-size:27px;margin:0 0 9px}.introText{font-size:12px;line-height:1.55;opacity:.68;margin:0 auto 20px;max-width:340px}
+button{appearance:none;border:1px solid rgba(255,255,255,.28);background:rgba(16,9,24,.78);color:#fff;border-radius:999px;padding:13px 19px;font-size:11px;font-weight:750;letter-spacing:.08em;box-shadow:0 0 25px rgba(168,76,255,.18)}
+button.primary{background:linear-gradient(135deg,#6420a0,#a648e7);border-color:rgba(228,190,255,.5);box-shadow:0 0 34px rgba(168,76,255,.38)}
+button:active{transform:scale(.97)}
+#controls{position:fixed;z-index:25;left:0;right:0;bottom:max(18px,env(safe-area-inset-bottom));display:none;justify-content:center;gap:8px;padding:0 14px;pointer-events:auto}
+#controls button{min-width:0;flex:1;max-width:185px;padding:12px 10px}
+#tracking{position:fixed;z-index:26;right:14px;bottom:max(78px,calc(env(safe-area-inset-bottom) + 70px));display:none;min-width:0;padding:9px 12px;font-size:9px}
+#tracking.active{border-color:#55dfcf;box-shadow:0 0 18px rgba(65,222,194,.28)}
+.glyph{position:absolute;width:94px;height:94px;transform:translate(-50%,-50%);filter:drop-shadow(0 0 13px rgba(160,75,255,.7));transition:opacity .55s,transform .55s}
+.glyph svg{width:100%;height:100%;overflow:visible}.glyphCore{animation:float 3.6s ease-in-out infinite}
+.glyph:nth-child(2) .glyphCore{animation-delay:-1s}.glyph:nth-child(3) .glyphCore{animation-delay:-2.2s}.glyph:nth-child(4) .glyphCore{animation-delay:-.4s}.glyph:nth-child(5) .glyphCore{animation-delay:-2.8s}.glyph:nth-child(6) .glyphCore{animation-delay:-1.5s}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-10px) rotate(4deg)}}
+.holo{position:absolute;width:min(24vw,150px);min-width:88px;transform:translate(-50%,-100%);opacity:0;transition:opacity .65s,transform .65s;filter:drop-shadow(0 0 12px rgba(165,80,255,.95));pointer-events:none;}
+.holo canvas{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;background:transparent;mix-blend-mode:screen;overflow:visible}
+.holo .scan{position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent 0,transparent 5px,rgba(255,255,255,.11) 6px,transparent 7px);mix-blend-mode:screen;animation:scan 2.8s linear infinite;pointer-events:none}
+.holo .base{position:absolute;left:50%;bottom:1px;transform:translateX(-50%);width:52%;height:11px;border-radius:50%;background:radial-gradient(ellipse,rgba(200,115,255,.5),rgba(65,130,255,.15),transparent 72%);filter:blur(3px)}
+.holo[data-i="1"]{filter:drop-shadow(0 0 13px rgba(55,220,230,.95))}.holo[data-i="2"]{filter:drop-shadow(0 0 13px rgba(75,125,255,.95))}.holo[data-i="3"]{filter:drop-shadow(0 0 13px rgba(50,205,155,.9))}.holo[data-i="4"]{filter:drop-shadow(0 0 13px rgba(230,85,205,.95))}.holo[data-i="5"]{filter:drop-shadow(0 0 13px rgba(125,95,255,.95))}
+@keyframes scan{from{transform:translateY(-8%)}to{transform:translateY(8%)}}
+#floor{position:fixed;transform:perspective(700px) rotateX(58deg);transform-origin:center bottom;z-index:2;left:0;right:0;bottom:5%;height:20%;opacity:0;transition:opacity .6s;pointer-events:none;background:radial-gradient(ellipse at center bottom,rgba(160,83,255,.20),transparent 67%)}
+#error{position:fixed;z-index:40;left:50%;top:50%;transform:translate(-50%,-50%);width:min(88vw,420px);display:none;padding:22px;border-radius:22px;background:rgba(12,8,18,.92);border:1px solid rgba(255,255,255,.18);text-align:center;backdrop-filter:blur(18px)}
+#error h2{font-size:17px;margin:0 0 8px}#error p{font-size:12px;line-height:1.5;opacity:.7;margin:0 0 15px}
+</style>
+</head>
+<body>
+<video id="camera" autoplay muted playsinline></video>
+<div id="holoSources" aria-hidden="true">
+  <video id="hv0" src="assets/person_walk.mp4" muted playsinline loop preload="auto"></video>
+  <video id="hv1" src="assets/person_holo.mp4" muted playsinline loop preload="auto"></video>
+  <video id="hv2" src="assets/people_group.mp4" muted playsinline loop preload="auto"></video>
+</div>
+<div id="world"><div class="glyph" data-i="0" style="left:17%;top:29%"><div class="glyphCore"><svg viewBox="0 0 100 100"><path d="M50 8C70 9 88 24 90 44c2 21-13 40-34 45C35 94 14 82 10 62 6 42 18 22 36 13c5-3 9-4 14-5Z" fill="#b95cff"/><path d="M50 28c10 0 18 8 18 18S60 64 50 64s-18-8-18-18 8-18 18-18Z" fill="#09060d"/><ellipse cx="50" cy="50" rx="40" ry="14" fill="none" stroke="#ead6ff" stroke-width="1.4"/></svg></div></div>
+<div class="glyph" data-i="1" style="left:78%;top:25%"><div class="glyphCore"><svg viewBox="0 0 100 100"><path d="M50 7 66 18 83 15 92 32 84 50 91 68 76 82 58 80 50 94 35 82 18 86 10 68 17 51 8 34 23 20 40 22Z" fill="#35d7e8"/><circle cx="50" cy="50" r="18" fill="#09060d"/><path d="M13 50h74" stroke="#d8fbff" stroke-width="1.2"/></svg></div></div>
+<div class="glyph" data-i="2" style="left:37%;top:55%"><div class="glyphCore"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="37" fill="#4e86ff"/><path d="M50 24c14 0 25 11 25 25S64 74 50 74 25 63 25 49s11-25 25-25Z" fill="#09060d"/><path d="M15 35c22 18 48 18 70 0M15 65c22-18 48-18 70 0" fill="none" stroke="#d9c1ff"/></svg></div></div>
+<div class="glyph" data-i="3" style="left:73%;top:61%"><div class="glyphCore"><svg viewBox="0 0 100 100"><path d="M50 6 91 50 50 94 9 50Z" fill="#36c79b"/><path d="M50 24 76 50 50 76 24 50Z" fill="#09060d"/><path d="M50 6v88M9 50h82" stroke="#d7fff5" opacity=".7"/></svg></div></div>
+<div class="glyph" data-i="4" style="left:52%;top:33%"><div class="glyphCore"><svg viewBox="0 0 100 100"><path d="M50 8C73 8 92 27 92 50S73 92 50 92 8 73 8 50 27 8 50 8Z" fill="#e65bce"/><path d="M50 20c17 0 30 13 30 30S67 80 50 80 20 67 20 50s13-30 30-30Z" fill="none" stroke="#f0ddff"/><circle cx="50" cy="50" r="10" fill="#09060d"/></svg></div></div>
+<div class="glyph" data-i="5" style="left:14%;top:70%"><div class="glyphCore"><svg viewBox="0 0 100 100"><path d="M50 5C59 20 82 15 91 29c9 14-3 31 1 47-16 8-28 18-42 16-15-2-32-13-37-28-5-17 8-28 10-43C26 13 41 18 50 5Z" fill="#8b6bff"/><path d="M50 26c9 0 16 7 16 16s-7 17-16 17-16-7-16-17 7-16 16-16Z" fill="#09060d"/><ellipse cx="50" cy="48" rx="34" ry="9" fill="none" stroke="#e6d0ff"/></svg></div></div><div class="holo" data-i="0" data-src="0" style="left:17%;top:29%"><canvas></canvas><div class="scan"></div><div class="base"></div></div>
+<div class="holo" data-i="1" data-src="1" style="left:78%;top:25%"><canvas></canvas><div class="scan"></div><div class="base"></div></div>
+<div class="holo" data-i="2" data-src="2" style="left:37%;top:55%"><canvas></canvas><div class="scan"></div><div class="base"></div></div>
+<div class="holo" data-i="3" data-src="0" style="left:73%;top:61%"><canvas></canvas><div class="scan"></div><div class="base"></div></div>
+<div class="holo" data-i="4" data-src="1" style="left:52%;top:33%"><canvas></canvas><div class="scan"></div><div class="base"></div></div>
+<div class="holo" data-i="5" data-src="2" style="left:14%;top:70%"><canvas></canvas><div class="scan"></div><div class="base"></div></div>
+<div id="floor"></div>
+<div class="top"><div class="brand">NISHAAN.AI</div><div class="status" id="status">CAMERA OFF</div></div>
+<div id="intro"><div class="introBox"><div class="kicker">NISHAAN.AI</div><h1>GLYPH VISION</h1><p class="introText">Look through the camera. Discover different Glyphs. Switch to Glasses Vision to reveal the preserved identities behind them.</p><button id="enter" class="primary" type="button">ENTER LIVE AR</button><div style="font-size:9px;opacity:.45;margin-top:10px">Moving holograms use transparent video processing; floor lock uses device motion on iPhone and WebXR plane tracking where supported.</div></div></div>
+<button id="tracking">FLOOR LOCK: OFF</button>
+<div id="controls"><button id="recenter">RE-CENTER</button><button id="switch" class="primary">SWITCH TO GLASSES</button></div>
+<div id="error"><h2 id="errTitle">Camera could not start</h2><p id="errText"></p><button id="retry" class="primary">TRY AGAIN</button></div>
+<script>
+(()=> {
+const video=document.getElementById('camera'),intro=document.getElementById('intro'),controls=document.getElementById('controls');
+const enter=document.getElementById('enter'),sw=document.getElementById('switch'),rec=document.getElementById('recenter'),trackBtn=document.getElementById('tracking');
+const status=document.getElementById('status'),glyphs=[...document.querySelectorAll('.glyph')],holos=[...document.querySelectorAll('.holo')],floor=document.getElementById('floor');
+const holoVideos=[document.getElementById('hv0'),document.getElementById('hv1'),document.getElementById('hv2')];
+const holoCanvases=holos.map(h=>h.querySelector('canvas'));
+const procCanvases=holoVideos.map(()=>document.createElement('canvas'));
+const procCtx=procCanvases.map(c=>c.getContext('2d',{willReadFrequently:true}));
+let holoRAF=0;
+const message=document.getElementById('error'),errText=document.getElementById('errText'),retry=document.getElementById('retry');
+const base=glyphs.map(g=>({x:parseFloat(g.style.left),y:parseFloat(g.style.top)}));
+let started=false,vision=false,tracking=false,tx=0,ty=0,stream=null;
+
+function setupHoloVideos(){
+ holoVideos.forEach(v=>{v.muted=true;v.loop=true;v.playsInline=true;});
+ holoVideos.forEach((v,i)=>v.addEventListener('loadedmetadata',()=>{
+   const w=320,h=Math.max(1,Math.round(v.videoHeight*(320/Math.max(1,v.videoWidth))));
+   procCanvases[i].width=w;procCanvases[i].height=h;
+   holoCanvases.forEach(c=>{c.width=w;c.height=h;});
+ },{once:true}));
+}
+function processHolograms(){
+ holoVideos.forEach((v,i)=>{
+   if(v.readyState<2 || !procCanvases[i].width) return;
+   const c=procCanvases[i],ctx=procCtx[i],w=c.width,h=c.height;
+   ctx.drawImage(v,0,0,w,h);
+   const im=ctx.getImageData(0,0,w,h),d=im.data;
+   for(let p=0;p<d.length;p+=4){
+     const r=d[p],g=d[p+1],b=d[p+2];
+     const mx=Math.max(r,g,b),mn=Math.min(r,g,b),sat=(mx-mn)/255,lum=(0.2126*r+0.7152*g+0.0722*b)/255;
+     // Keep bright/saturated hologram pixels and suppress dark/grey backgrounds.
+     let a=Math.max(0,Math.min(1,(sat-0.08)/0.42))*Math.pow(Math.max(0,lum-0.02)/0.78,0.72);
+     if(i===2){
+       // The group clip has a bluish studio background. Prefer neon/high-contrast figure edges.
+       a*=Math.max(0,Math.min(1,(lum-0.10)/0.38));
+       if(sat<0.20) a*=0.08;
+     }
+     // Reduce stock watermark/grey text while preserving luminous people.
+     if(sat<0.12) a*=0.08;
+     d[p+3]=Math.round(a*235);
+     // Unify colour per clip into a clean hologram tint.
+     let cr,cg,cb;
+     if(i===0){cr=120;cg=150;cb=255;} else if(i===1){cr=100;cg=235;cb=255;} else {cr=210;cg=105;cb=255;}
+     const boost=0.35+0.65*sat;
+     d[p]=Math.min(255,cr*boost + r*(1-boost));
+     d[p+1]=Math.min(255,cg*boost + g*(1-boost));
+     d[p+2]=Math.min(255,cb*boost + b*(1-boost));
+   }
+   ctx.putImageData(im,0,0);
+ });
+ holoCanvases.forEach((c,i)=>{
+   const src=procCanvases[Number(holos[i].dataset.src)];
+   if(src.width) c.getContext('2d').drawImage(src,0,0,c.width,c.height);
+ });
+ holoRAF=requestAnimationFrame(processHolograms);
+}
+async function startHoloVideos(){
+ setupHoloVideos();
+ for(const v of holoVideos){try{await v.play()}catch(e){}}
+ if(!holoRAF) holoRAF=requestAnimationFrame(processHolograms);
+}
+function showError(t){errText.textContent=t;message.style.display='block'}
+async function start(){
+ if(started) return;
+ message.style.display='none';
+ // IMPORTANT: switch the UI immediately on the user gesture.
+ // Previously the intro stayed visible until camera startup completed, which made any
+ // permission/constraint error look like the ENTER button was dead.
+ intro.style.display='none';
+ controls.style.display='flex';
+ trackBtn.style.display='block';
+ trackBtn.title='Tap to recalibrate the floor lock.';
+ status.textContent='REQUESTING CAMERA…';
+ enter.disabled=true; enter.textContent='STARTING…';
+ applyTracking();
+ try{
+  if(!window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+   throw new Error('HTTPS_REQUIRED');
+  }
+  let s;
+  try {
+   s=await navigator.mediaDevices.getUserMedia({video:{facingMode:{exact:'environment'}},audio:false});
+  } catch(firstErr) {
+   // Some browsers reject exact rear-camera constraints. Fall back to a generic camera.
+   s=await navigator.mediaDevices.getUserMedia({video:true,audio:false});
+  }
+  stream=s;
+  video.srcObject=stream;
+  await video.play();
+  started=true;
+  status.textContent='LIVE • GLYPH MODE';
+  enter.textContent='LIVE AR';
+  // Nothing below is allowed to block AR startup.
+  startHoloVideos().catch(()=>{});
+  enableTracking().catch(()=>{});
+ }catch(e){
+  started=false;
+  enter.disabled=false; enter.textContent='ENTER LIVE AR';
+  status.textContent='CAMERA ERROR';
+  if(e && e.message==='HTTPS_REQUIRED'){
+   showError('Open the GitHub Pages HTTPS link, not the downloaded HTML file.');
+  }else if(e && (e.name==='NotAllowedError'||e.name==='PermissionDeniedError')){
+   showError('Camera permission was blocked. Allow Camera for this GitHub Pages site, then tap TRY AGAIN.');
+  }else if(e && (e.name==='NotFoundError'||e.name==='OverconstrainedError')){
+   showError('No usable camera was found. Try the site in Chrome or Safari on your phone.');
+  }else{
+   showError('Camera startup failed: '+(e&&e.name?e.name:'unknown error')+'. Tap TRY AGAIN.');
+  }
+ }
+}
+
+async function enableTracking(){
+ try{
+  if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
+   const p=await DeviceOrientationEvent.requestPermission();if(p!=='granted')return;
+  }
+  tracking=true;trackBtn.textContent='FLOOR LOCK: ON';trackBtn.classList.add('active');
+  addEventListener('deviceorientation',e=>{
+   tx=Math.max(-1,Math.min(1,(e.gamma||0)/45));ty=Math.max(-1,Math.min(1,((e.beta||35)-35)/45));
+  },true);
+ }catch(e){}
+}
+function applyTracking(){
+ glyphs.forEach((g,i)=>{g.style.left=(base[i].x+tx*4.2)+'%';g.style.top=(base[i].y+ty*3.2)+'%'});
+ holos.forEach((h,i)=>{h.style.left=(base[i].x+tx*4.2)+'%';h.style.top=(base[i].y+ty*3.2)+'%'});
+}
+function toggle(){
+ if(!started)return;
+ vision=!vision;
+ if(vision){
+  status.textContent='LIVE • GLASSES VISION';sw.textContent='RETURN TO GLYPH';
+  glyphs.forEach(g=>{g.style.opacity='0';g.style.transform='translate(-50%,-50%) scale(.45)'});
+  holos.forEach(h=>{h.style.opacity='.98';h.style.transform='translate(-50%,-100%) scale(1)'});
+  floor.style.opacity='1';
+ }else{
+  status.textContent='LIVE • GLYPH MODE';sw.textContent='SWITCH TO GLASSES';
+  holos.forEach(h=>{h.style.opacity='0';h.style.transform='translate(-50%,-100%) scale(.7)'});
+  floor.style.opacity='0';
+  glyphs.forEach(g=>{g.style.opacity='1';g.style.transform='translate(-50%,-50%) scale(1)'});
+ }
+}
+enter.addEventListener('click', start); enter.addEventListener('touchend', e=>{e.preventDefault(); start();}, {passive:false}); enter.addEventListener('pointerup', e=>{if(e.pointerType==='touch') e.preventDefault();}, {passive:false}); retry.addEventListener('click', start); sw.onclick=toggle; rec.onclick=()=>{tx=0;ty=0;applyTracking()};
+trackBtn.onclick=()=>{tx=0;ty=0;applyTracking();trackBtn.textContent='FLOOR LOCK: RECENTERED';setTimeout(()=>{trackBtn.textContent='FLOOR LOCK: ON'},900)};
+setInterval(()=>{if(started&&tracking)applyTracking()},80);
+})();
+</script>
+</body>
+</html>
